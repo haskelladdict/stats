@@ -1,8 +1,6 @@
-// Package stats is a simple commandline helper script for calculating basic
-// statistics on a data file expected to consist of a single column
-// of floating point numbers.
-// NOTE: Currently stats will read in all the data to compute the statistics
-// and thus require memory on the order of the data set size.
+// Copyright 2014 Markus Dittrich
+// Licensed under BSD license, see LICENSE file for details
+
 package main
 
 import (
@@ -16,7 +14,7 @@ import (
 // structure and thus requires storage on the order of the data set size
 type medData struct {
 	smaller, larger FloatHeap
-	median          float64
+	val             float64
 }
 
 // newMedData initializes the data structure for computing the running median
@@ -51,9 +49,9 @@ func updateMedian(m *medData, v float64) *medData {
 		}
 	} else {
 		// insert third and following elements
-		if v < m.median {
+		if v < m.val {
 			heap.Push(&m.smaller, -v)
-		} else if v > m.median {
+		} else if v > m.val {
 			heap.Push(&m.larger, v)
 		} else {
 			if len(m.smaller) <= len(m.larger) {
@@ -73,11 +71,11 @@ func updateMedian(m *medData, v float64) *medData {
 
 	// compute new median
 	if len(m.smaller) == len(m.larger) {
-		m.median = 0.5 * (m.larger[0] - m.smaller[0])
+		m.val = 0.5 * (m.larger[0] - m.smaller[0])
 	} else if len(m.smaller) > len(m.larger) {
-		m.median = -m.smaller[0]
+		m.val = -m.smaller[0]
 	} else {
-		m.median = m.larger[0]
+		m.val = m.larger[0]
 	}
 
 	if math.Abs(float64(len(m.smaller)-len(m.larger))) > 1 {

@@ -1,4 +1,4 @@
-// Package stats is a simple commandline helper script for calculating basic
+// stats is a simple commandline helper script for calculating basic
 // statistics on a data file expected to consist of a single column
 // of floating point numbers.
 // NOTE: Currently stats will read in all the data to compute the statistics

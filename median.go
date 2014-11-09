@@ -30,27 +30,27 @@ func newMedData() *medData {
 // updateMedian updates the running median using two heaps the each keep
 // track of elements smaller and larger than the current median.
 func updateMedian(m *medData, v float64) *medData {
-	// insert first element
 	if len(m.smaller) == 0 && len(m.larger) == 0 {
+		// insert first element
 		heap.Push(&m.smaller, -v)
-		// insert second element (first case)
 	} else if len(m.smaller) == 0 {
+		// insert second element (first case)
 		if v > m.larger[0] {
 			heap.Push(&m.smaller, -heap.Pop(&m.larger).(float64))
 			heap.Push(&m.larger, v)
 		} else {
 			heap.Push(&m.smaller, -v)
 		}
-		// insert second element (second case)
 	} else if len(m.larger) == 0 {
+		// insert second element (second case)
 		if v < -m.smaller[0] {
 			heap.Push(&m.larger, -heap.Pop(&m.smaller).(float64))
-			heap.Push(&m.larger, v)
+			heap.Push(&m.smaller, v)
 		} else {
 			heap.Push(&m.larger, v)
 		}
-		// insert third and following elements
 	} else {
+		// insert third and following elements
 		if v < m.median {
 			heap.Push(&m.smaller, -v)
 		} else if v > m.median {

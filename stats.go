@@ -19,14 +19,14 @@ const version = 0.1
 
 // flags for command line parser
 var (
-	stats   bool // request statistics output
-	hist    bool // request histogram plotting
-	numBins int  // number of bins for histogram
+	wantStats bool // request statistics output
+	wantHist  bool // request histogram plotting
+	numBins   int  // number of bins for histogram
 )
 
 func init() {
-	flag.BoolVar(&stats, "s", true, "compute statistics")
-	flag.BoolVar(&hist, "h", false, "compute and show histogram")
+	flag.BoolVar(&wantStats, "s", true, "print statistics")
+	flag.BoolVar(&wantHist, "h", false, "compute and show histogram")
 	flag.IntVar(&numBins, "b", 100, "number of bins for histogram")
 }
 
@@ -43,16 +43,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if stats {
-		s, err := computeStats(file)
-		if err != nil {
-			log.Fatal(err)
-		}
+	// compute stats. The actual data is stored in s.median.smaller and
+	// s.median.larger in case we need it for computing the histogram
+	s, err := computeStats(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if wantStats {
 		printStats(s)
 	}
 
-	if hist {
-		fmt.Println("*** histogram not implemented yet - coming soon")
+	if wantHist {
+		h, err := computeHist(s, numBins)
+		if err != nil {
+			log.Fatal(err)
+		}
+		printHist(h)
 	}
 }
 

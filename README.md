@@ -6,7 +6,7 @@ data files.
 
 The input to stats can be any plain text single column data file. Stats will interpret
 each line in the input file as a 64bit floating point number and then compute 
-statistics on the parsed data. Currently stats computed the following quantities:
+statistics on the parsed data. Currently stats evaluates the following quantities:
 
 * mean
 * variance

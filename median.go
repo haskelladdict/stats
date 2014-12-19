@@ -43,7 +43,7 @@ func updateMedian(m *medData, v float64) *medData {
 		// insert second element (second case)
 		if v < -m.smaller[0] {
 			heap.Push(&m.larger, -heap.Pop(&m.smaller).(float64))
-			heap.Push(&m.smaller, v)
+			heap.Push(&m.smaller, -v)
 		} else {
 			heap.Push(&m.larger, v)
 		}

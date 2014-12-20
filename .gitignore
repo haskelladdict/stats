@@ -3,6 +3,9 @@
 *.a
 *.so
 
+stats.sublime*
+Makefile
+data/*
 stats
 
 # Folders

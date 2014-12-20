@@ -43,8 +43,7 @@ func printHist(h *hist) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%4.4e   %s\n", v.left, barString)
-		fmt.Printf("%4.4e   %s\n", v.right, barString)
+		fmt.Printf("%4.4e   %s\n", v.center, barString)
 	}
 }
 

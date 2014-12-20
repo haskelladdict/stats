@@ -10,8 +10,8 @@ import (
 
 // bin describes an individual histogram bin
 type bin struct {
-	left, right float64 // left and right boundaries of bin
-	n           int     // number of elements in the bin
+	center float64 // center of bin
+	n      int     // number of elements in the bin
 }
 
 // hist describes a complete histogram.
@@ -28,15 +28,16 @@ func computeHist(s *Stats, nBins int) (*hist, error) {
 	var h hist
 	binWidth := (s.max - s.min) / float64(nBins)
 	for i := 0; i < nBins; i++ {
-		b := bin{left: s.min + float64(i)*binWidth, right: s.min + float64(i+1)*binWidth}
+		b := bin{center: s.min + float64(i)*binWidth}
 		h = append(h, b)
 	}
 	// make sure the last bin ends exactly at s.max
-	h[nBins-1].right = s.max
+	//h[nBins-1].right = s.max
 
 	// fill histogram with data
+	shiftedMin := s.min - binWidth*0.5
 	for _, v := range s.median.smaller {
-		i := int(math.Floor((-v - s.min) / binWidth))
+		i := int(math.Floor((-v - shiftedMin) / binWidth))
 		// special case: map all s.max values back into largest bin since above
 		// computation places them in nBins+1 bin.
 		if i == nBins {
@@ -45,7 +46,7 @@ func computeHist(s *Stats, nBins int) (*hist, error) {
 		h[i].n++
 	}
 	for _, v := range s.median.larger {
-		i := int(math.Floor((v - s.min) / binWidth))
+		i := int(math.Floor((v - shiftedMin) / binWidth))
 		// special case: map all s.max values back into largest bin since above
 		// computation places them in nBins+1 bin.
 		if i == nBins {

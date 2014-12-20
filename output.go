@@ -16,11 +16,11 @@ const maxLength = 70
 // printStats prints the computed statistics to stdout
 func printStats(s *Stats) {
 	fmt.Printf("#elem: %d\n", s.numElem)
-	fmt.Printf("min  : %e\n", s.min)
-	fmt.Printf("max  : %e\n", s.max)
-	fmt.Printf("mean : %e\n", s.mean)
-	fmt.Printf("var  : %e\n", s.variance)
-	fmt.Printf("med  : %e\n", s.median.val)
+	fmt.Printf("min  : %g\n", s.min)
+	fmt.Printf("max  : %g\n", s.max)
+	fmt.Printf("mean : %g\n", s.mean)
+	fmt.Printf("var  : %g\n", s.variance)
+	fmt.Printf("med  : %g\n", s.median.val)
 }
 
 // printHist prints a simple ASCII art version of a histogram.
@@ -37,13 +37,15 @@ func printHist(h *hist) {
 	scale := float64(maxLength) / float64(max)
 
 	// print histogram
+	fmt.Println()
 	for _, v := range *h {
 		length := int(math.Floor(float64(v.n) * scale))
-		barString, err := repeatChar(length, "\u25A9")
+		barString, err := repeatChar(length, "*")
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%4.4e   %s\n", v.center, barString)
+		fmt.Printf("%4.2e  %s\n", v.left, barString)
+		fmt.Printf("%4.2e  %s\n", v.right, barString)
 	}
 }
 

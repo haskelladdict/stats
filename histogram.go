@@ -20,22 +20,22 @@ type hist []bin
 
 // computeHist computes a histogram based on the parsed data
 func computeHist(s *Stats, nBins int) (*hist, error) {
-	if s.max <= s.min {
+	if s.Max <= s.Min {
 		return nil, fmt.Errorf("histogram: the date range is <= 0")
 	}
 
 	// create bins
 	var h hist
-	binWidth := (s.max - s.min) / float64(nBins)
+	binWidth := (s.Max - s.Min) / float64(nBins)
 	for i := 0; i < nBins; i++ {
-		b := bin{left: s.min + float64(i)*binWidth,
-			right: s.min + float64(i+1)*binWidth}
+		b := bin{left: s.Min + float64(i)*binWidth,
+			right: s.Min + float64(i+1)*binWidth}
 		h = append(h, b)
 	}
 
 	// fill histogram with data
-	shiftedMin := s.min // - binWidth*0.5
-	for _, v := range s.median.smaller {
+	shiftedMin := s.Min // - binWidth*0.5
+	for _, v := range s.Median.smaller {
 		i := int(math.Floor((-v - shiftedMin) / binWidth))
 		// special case: map all s.max values back into largest bin since above
 		// computation places them in nBins+1 bin.
@@ -44,7 +44,7 @@ func computeHist(s *Stats, nBins int) (*hist, error) {
 		}
 		h[i].n++
 	}
-	for _, v := range s.median.larger {
+	for _, v := range s.Median.larger {
 		i := int(math.Floor((v - shiftedMin) / binWidth))
 		// special case: map all s.max values back into largest bin since above
 		// computation places them in nBins+1 bin.

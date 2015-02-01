@@ -1,4 +1,4 @@
-// Copyright 2014 Markus Dittrich
+// Copyright 2015 Markus Dittrich
 // Licensed under BSD license, see LICENSE file for details
 
 // stats is a simple commandline helper script for calculating basic
@@ -53,14 +53,15 @@ func main() {
 	if wantStats {
 		printStats(s)
 	}
-
-	if wantHist {
-		h, err := computeHist(s, numBins)
-		if err != nil {
-			log.Fatal(err)
+	/*
+		if wantHist {
+			h, err := computeHist(s, numBins)
+			if err != nil {
+				log.Fatal(err)
+			}
+			printHist(h)
 		}
-		printHist(h)
-	}
+	*/
 }
 
 // usage prints basic usage info to stdout

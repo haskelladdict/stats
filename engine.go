@@ -5,58 +5,114 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"io"
 	"math"
 	"strconv"
+	"unicode"
 )
 
 // Stats tracks the statistics for the analyzed dataset
 type Stats struct {
-	numElem  int64
-	mean     float64
-	variance float64
-	median   *medData // running median
-	min      float64
-	max      float64
+	NumElem  int64
+	Mean     float64
+	Variance float64
+	qk, mk   float64  // variance helper variables
+	Median   *medData // running median
+	Min      float64
+	Max      float64
 }
 
 // computeStats determined relevant stats on the input file
-func computeStats(r io.Reader) (*Stats, error) {
-	s := Stats{max: -math.MaxFloat64, min: math.MaxFloat64, median: newMedData()}
-	var mk, qk float64 // helper values for one pass variance computation
-	var d float64
-	var err error
+func computeStats(r io.Reader) ([]*Stats, error) {
 	sc := bufio.NewScanner(r)
+
+	// parse first line, determine number of columns, and add it to stats
+	sc.Scan()
+	buf := bytes.FieldsFunc(bytes.TrimSpace(sc.Bytes()), unicode.IsSpace)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("error parsing input")
+	}
+	stats := make([]*Stats, len(buf))
+	for i := range stats {
+		stats[i] = &Stats{Max: -math.MaxFloat64, Min: math.MaxFloat64, Median: newMedData()}
+	}
+	if err := updateStats(stats, buf); err != nil {
+		return nil, err
+	}
+
+	// parse the rest of the file
 	for sc.Scan() {
-		if d, err = strconv.ParseFloat(sc.Text(), 64); err != nil {
+		buf := bytes.FieldsFunc(bytes.TrimSpace(sc.Bytes()), unicode.IsSpace)
+		if len(buf) == 0 {
+			return nil, fmt.Errorf("error parsing input")
+		}
+		if err := updateStats(stats, buf); err != nil {
 			return nil, err
 		}
-		s.numElem++
+	}
+	finalizeStats(stats)
+	return stats, nil
+}
 
-		// update min/max
-		if d > s.max {
-			s.max = d
+// updateStats updates the stats for all columns based on the provided values
+func updateStats(stats []*Stats, buf [][]byte) error {
+	if len(buf) != len(stats) {
+		return fmt.Errorf("Unexpected number of columns.")
+	}
+
+	for i, s := range stats {
+		if err := s.update(buf[i]); err != nil {
+			return err
 		}
-		if d < s.min {
-			s.min = d
-		}
+	}
+	return nil
+}
 
-		s.median = updateMedian(s.median, d)
-		s.mean += d
+// finalizeStats is called once all the data has been parsed and thus the total
+// number of elements is known
+func finalizeStats(stats []*Stats) {
+	for _, s := range stats {
+		s.finalize()
+	}
+}
 
-		// update variance
-		k := float64(s.numElem)
-		qk += (k - 1) * (d - mk) * (d - mk) / k
-		mk += (d - mk) / k
+// update updates the statistic s based on the byteslice b which has to be
+// convertible into a float value
+func (s *Stats) update(b []byte) error {
+
+	var d float64
+	var err error
+	if d, err = strconv.ParseFloat(string(b), 64); err != nil {
+		return err
+	}
+	s.NumElem++
+
+	// update min/max
+	if d > s.Max {
+		s.Max = d
+	}
+	if d < s.Min {
+		s.Min = d
 	}
 
-	if s.numElem == 0 {
-		return &s, nil
-	}
+	s.Median = updateMedian(s.Median, d)
+	s.Mean += d
 
-	s.mean /= float64(s.numElem)
-	if s.numElem > 1 {
-		s.variance = qk / float64(s.numElem-1)
+	// update variance
+	k := float64(s.NumElem)
+	s.qk += (k - 1) * (d - s.mk) * (d - s.mk) / k
+	s.mk += (d - s.mk) / k
+
+	return nil
+}
+
+// finalize computes the mean and variance for the statistic s based on the
+// current number of elements
+func (s *Stats) finalize() {
+	s.Mean /= float64(s.NumElem)
+	if s.NumElem > 1 {
+		s.Variance = s.qk / float64(s.NumElem-1)
 	}
-	return &s, nil
 }

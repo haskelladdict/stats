@@ -19,14 +19,14 @@ func printStats(stats []*Stats) {
 	outStr := make([]string, 8)
 	var spacer string
 	for i, s := range stats {
-		outStr[0] = fmt.Sprintf("%s%scol %-13d", outStr[0], spacer, i)
-		outStr[1] = fmt.Sprintf("%s%s#elem: %-10d", outStr[1], spacer, s.NumElem)
-		outStr[2] = fmt.Sprintf("%s%smin  : %-10.8g", outStr[2], spacer, s.Min)
-		outStr[3] = fmt.Sprintf("%s%smax  : %-10.8g", outStr[3], spacer, s.Max)
-		outStr[4] = fmt.Sprintf("%s%smean : %-10.8g", outStr[4], spacer, s.Mean)
-		outStr[5] = fmt.Sprintf("%s%sstd  : %-10.8g", outStr[5], spacer, math.Sqrt(s.Variance))
-		outStr[6] = fmt.Sprintf("%s%svar  : %-10.8g", outStr[6], spacer, s.Variance)
-		outStr[7] = fmt.Sprintf("%s%smed  : %-10.8g", outStr[7], spacer, s.Median.val)
+		outStr[0] = fmt.Sprintf("%s%scol %-17d", outStr[0], spacer, i)
+		outStr[1] = fmt.Sprintf("%s%s#elem: %-14d", outStr[1], spacer, s.NumElem)
+		outStr[2] = fmt.Sprintf("%s%smin  : %-10.8e", outStr[2], spacer, s.Min)
+		outStr[3] = fmt.Sprintf("%s%smax  : %-10.8e", outStr[3], spacer, s.Max)
+		outStr[4] = fmt.Sprintf("%s%smean : %-10.8e", outStr[4], spacer, s.Mean)
+		outStr[5] = fmt.Sprintf("%s%sstd  : %-10.8e", outStr[5], spacer, math.Sqrt(s.Variance))
+		outStr[6] = fmt.Sprintf("%s%svar  : %-10.8e", outStr[6], spacer, s.Variance)
+		outStr[7] = fmt.Sprintf("%s%smed  : %-10.8e", outStr[7], spacer, s.Median.val)
 		spacer = strings.Repeat(" ", 5)
 	}
 	fmt.Println(strings.Join(outStr, "\n"))

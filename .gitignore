@@ -8,6 +8,8 @@ Makefile
 data/*
 stats
 
+.tags*
+
 # Folders
 _obj
 _test

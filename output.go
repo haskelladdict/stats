@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"strings"
 )
 
 // maximum length of histogram bars for displaying purposes
@@ -16,20 +15,18 @@ const maxLength = 70
 
 // printStats prints the computed statistics to stdout
 func printStats(stats []*Stats) {
-	outStr := make([]string, 8)
-	var spacer string
 	for i, s := range stats {
-		outStr[0] = fmt.Sprintf("%s%scol %-17d", outStr[0], spacer, i)
-		outStr[1] = fmt.Sprintf("%s%s#elem: %-14d", outStr[1], spacer, s.NumElem)
-		outStr[2] = fmt.Sprintf("%s%smin  : %-10.8e", outStr[2], spacer, s.Min)
-		outStr[3] = fmt.Sprintf("%s%smax  : %-10.8e", outStr[3], spacer, s.Max)
-		outStr[4] = fmt.Sprintf("%s%smean : %-10.8e", outStr[4], spacer, s.Mean)
-		outStr[5] = fmt.Sprintf("%s%sstd  : %-10.8e", outStr[5], spacer, math.Sqrt(s.Variance))
-		outStr[6] = fmt.Sprintf("%s%svar  : %-10.8e", outStr[6], spacer, s.Variance)
-		outStr[7] = fmt.Sprintf("%s%smed  : %-10.8e", outStr[7], spacer, s.Median.val)
-		spacer = strings.Repeat(" ", 5)
+		fmt.Printf("col %-17d\n", i)
+		fmt.Println()
+		fmt.Printf("#elem : %-14d\n", s.NumElem)
+		fmt.Printf("mean  : %-10.8g\n", s.Mean)
+		fmt.Printf("med   : %-10.8g\n", s.Median.val)
+		fmt.Printf("std   : %-10.8g\n", math.Sqrt(s.Variance))
+		fmt.Printf("var   : %-10.8g\n", s.Variance)
+		fmt.Printf("min   : %-10.8g\n", s.Min)
+		fmt.Printf("max   : %-10.8g\n", s.Max)
+		fmt.Printf("\n\n")
 	}
-	fmt.Println(strings.Join(outStr, "\n"))
 }
 
 // printHist prints a simple ASCII art version of a histogram.

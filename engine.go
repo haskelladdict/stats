@@ -25,8 +25,9 @@ type Stats struct {
 }
 
 // computeStats determined relevant stats on the input file
-func computeStats(r io.Reader) ([]*Stats, error) {
+func computeStats(r io.Reader, rows *rowRange) ([]*Stats, error) {
 	sc := bufio.NewScanner(r)
+	var rowCount int
 
 	// parse first line, determine number of columns, and add it to stats
 	sc.Scan()
@@ -38,12 +39,18 @@ func computeStats(r io.Reader) ([]*Stats, error) {
 	for i := range stats {
 		stats[i] = &Stats{Max: -math.MaxFloat64, Min: math.MaxFloat64, Median: newMedData()}
 	}
-	if err := updateStats(stats, buf); err != nil {
-		return nil, err
+	if rowCount >= rows.minRow && rowCount <= rows.maxRow {
+		if err := updateStats(stats, buf); err != nil {
+			return nil, err
+		}
 	}
 
 	// parse the rest of the file
 	for sc.Scan() {
+		rowCount++
+		if rowCount < rows.minRow || rowCount > rows.maxRow {
+			continue
+		}
 		buf := bytes.FieldsFunc(bytes.TrimSpace(sc.Bytes()), unicode.IsSpace)
 		if len(buf) == 0 {
 			return nil, fmt.Errorf("error parsing input")

@@ -39,6 +39,9 @@ type rowRange struct {
 // NOTE: An empty colSpec implies that all columns are to be considered
 type colSpec map[int]struct{}
 
+// statMap is a map containing statistics for all requested columns
+type statsMap map[int]*Stats
+
 func init() {
 	flag.BoolVar(&wantStats, "s", true, "print statistics")
 	flag.StringVar(&rowRangeStr, "r", "", "provide row range of type start:end")

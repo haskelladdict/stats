@@ -14,7 +14,7 @@ import (
 const maxLength = 70
 
 // printStats prints the computed statistics to stdout
-func printStats(stats []*Stats) {
+func printStats(stats map[int]*Stats) {
 	for i, s := range stats {
 		fmt.Printf("col %-17d\n", i)
 		fmt.Println()

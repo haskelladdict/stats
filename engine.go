@@ -25,7 +25,7 @@ type Stats struct {
 }
 
 // computeStats determined relevant stats on the input file
-func computeStats(r io.Reader, rows *rowRange) ([]*Stats, error) {
+func computeStats(r io.Reader, rows *rowRange, cols colSpec) (map[int]*Stats, error) {
 	sc := bufio.NewScanner(r)
 	var rowCount int
 
@@ -35,10 +35,23 @@ func computeStats(r io.Reader, rows *rowRange) ([]*Stats, error) {
 	if len(buf) == 0 {
 		return nil, fmt.Errorf("error parsing input")
 	}
-	stats := make([]*Stats, len(buf))
-	for i := range stats {
-		stats[i] = &Stats{Max: -math.MaxFloat64, Min: math.MaxFloat64, Median: newMedData()}
+
+	// if the colSpecs are empty we consider all columns
+	if len(cols) == 0 {
+		for i := 0; i < len(buf); i++ {
+			cols[i] = struct{}{}
+		}
 	}
+
+	// initialize map with column statistics
+	stats := make(map[int]*Stats)
+	for k := range cols {
+		if k >= len(buf) {
+			return stats, fmt.Errorf("Requested column id %d out of range.", k)
+		}
+		stats[k] = &Stats{Max: -math.MaxFloat64, Min: math.MaxFloat64, Median: newMedData()}
+	}
+
 	if rowCount >= rows.minRow && rowCount <= rows.maxRow {
 		if err := updateStats(stats, buf); err != nil {
 			return nil, err
@@ -64,9 +77,9 @@ func computeStats(r io.Reader, rows *rowRange) ([]*Stats, error) {
 }
 
 // updateStats updates the stats for all columns based on the provided values
-func updateStats(stats []*Stats, buf [][]byte) error {
-	if len(buf) != len(stats) {
-		return fmt.Errorf("Unexpected number of columns.")
+func updateStats(stats map[int]*Stats, buf [][]byte) error {
+	if len(buf) < len(stats) {
+		return fmt.Errorf("Insufficient number of columns encountered.")
 	}
 
 	for i, s := range stats {
@@ -79,7 +92,7 @@ func updateStats(stats []*Stats, buf [][]byte) error {
 
 // finalizeStats is called once all the data has been parsed and thus the total
 // number of elements is known
-func finalizeStats(stats []*Stats) {
+func finalizeStats(stats map[int]*Stats) {
 	for _, s := range stats {
 		s.finalize()
 	}
